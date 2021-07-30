@@ -7,15 +7,15 @@
         
         
         
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Build - IXWebSocket</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/font-awesome.min.css" rel="stylesheet">
-        <link href="css/base.css" rel="stylesheet">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Performance - IXWebSocket</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
 
-        <script src="js/jquery-1.10.2.min.js" defer></script>
-        <script src="js/bootstrap.min.js" defer></script>
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
@@ -23,7 +23,7 @@
     <body>
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="index.html">IXWebSocket</a>
+                <a class="navbar-brand" href="..">IXWebSocket</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -34,28 +34,28 @@
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
                             <li class="navitem">
-                                <a href="index.html" class="nav-link">Home</a>
+                                <a href=".." class="nav-link">Home</a>
                             </li>
                             <li class="navitem">
-                                <a href="CHANGELOG.html" class="nav-link">Changelog</a>
+                                <a href="../CHANGELOG/" class="nav-link">Changelog</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../build/" class="nav-link">Build</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../design/" class="nav-link">Design</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../packages/" class="nav-link">Packages</a>
                             </li>
                             <li class="navitem active">
-                                <a href="build.html" class="nav-link">Build</a>
+                                <a href="./" class="nav-link">Performance</a>
                             </li>
                             <li class="navitem">
-                                <a href="design.html" class="nav-link">Design</a>
+                                <a href="../usage/" class="nav-link">Examples</a>
                             </li>
                             <li class="navitem">
-                                <a href="packages.html" class="nav-link">Packages</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="performance.html" class="nav-link">Performance</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="usage.html" class="nav-link">Examples</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="ws.html" class="nav-link">Ws</a>
+                                <a href="../ws/" class="nav-link">Ws</a>
                             </li>
                         </ul>
 
@@ -66,12 +66,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="CHANGELOG.html" class="nav-link">
+                                <a rel="prev" href="../packages/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="design.html" class="nav-link">
+                                <a rel="next" href="../usage/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -93,7 +93,7 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="2"><a href="#build" class="nav-link">Build</a>
+            <li class="nav-item" data-level="2"><a href="#websocket-client-performance" class="nav-link">WebSocket Client performance</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -102,73 +102,33 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h2 id="build">Build</h2>
-<h3 id="cmake">CMake</h3>
-<p>CMakefiles for the library and the examples are available. This library has few dependencies, so it is possible to just add the source files into your project. Otherwise the usual way will suffice.</p>
-<pre><code>mkdir build # make a build dir so that you can build out of tree.
-cd build
-cmake -DUSE_TLS=1 ..
-make -j
-make install # will install to /usr/local on Unix, on macOS it is a good idea to sudo chown -R `whoami`:staff /usr/local
+<h2 id="websocket-client-performance">WebSocket Client performance</h2>
+<p>We will run a client and a server on the same machine, connecting to localhost. This bench is run on a MacBook Pro from 2015. We can receive over 200,000 (small) messages per second, another way to put it is that it takes 5 micro-second to receive and process one message. This is an indication about the minimal latency to receive messages.</p>
+<h3 id="receiving-messages">Receiving messages</h3>
+<p>By using the push_server ws sub-command, the server will send the same message in a loop to any connected client.</p>
+<pre><code>ws push_server -q --send_msg 'yo'
 </code></pre>
-<p>Headers and a static library will be installed to the target dir.
-There is a unittest which can be executed by typing <code>make test</code>.</p>
-<p>Options for building:</p>
-<ul>
-<li><code>-DBUILD_SHARED_LIBS=ON</code> will build the unittest as a shared libary instead of a static library, which is the default</li>
-<li><code>-DUSE_ZLIB=1</code> will enable zlib support, required for http client + server + websocket per message deflate extension</li>
-<li><code>-DUSE_TLS=1</code> will enable TLS support</li>
-<li><code>-DUSE_OPEN_SSL=1</code> will use <a href="https://www.openssl.org/">openssl</a> for the TLS support (default on Linux and Windows)</li>
-<li><code>-DUSE_MBED_TLS=1</code> will use <a href="https://tls.mbed.org/">mbedlts</a> for the TLS support</li>
-<li><code>-DUSE_WS=1</code> will build the ws interactive command line tool</li>
-<li><code>-DUSE_TEST=1</code> will build the unittest</li>
-</ul>
-<p>If you are on Windows, look at the <a href="https://github.com/machinezone/IXWebSocket/blob/master/appveyor.yml">appveyor</a> file (not maintained much though) or rather the <a href="https://github.com/machinezone/IXWebSocket/blob/master/.github/workflows/unittest_windows.yml">github actions</a> which have instructions for building dependencies.</p>
-<p>It is also possible to externally include the project, so that everything is fetched over the wire when you build like so:</p>
-<pre><code>    ExternalProject_Add(
-        IXWebSocket
-        GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
-        ...
-    )
-</code></pre>
-<h3 id="vcpkg">vcpkg</h3>
-<p>It is possible to get IXWebSocket through Microsoft <a href="https://github.com/microsoft/vcpkg">vcpkg</a>.</p>
-<pre><code>vcpkg install ixwebsocket
-</code></pre>
-<p>To use the installed package within a cmake project, use the following:</p>
-<pre><code class="language-cmake"> set(CMAKE_TOOLCHAIN_FILE &quot;$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake&quot; CACHE STRING &quot;&quot;) # this is super important in order for cmake to include the vcpkg search/lib paths!
-
- # find library and its headers
- find_path(IXWEBSOCKET_INCLUDE_DIR ixwebsocket/IXWebSocket.h)
- find_library(IXWEBSOCKET_LIBRARY ixwebsocket)
- # include headers
- include_directories(${IXWEBSOCKET_INCLUDE_DIR})
- # ...
- target_link_libraries(${PROJECT_NAME} ... ${IXWEBSOCKET_LIBRARY}) # Cmake will automatically fail the generation if the lib was not found, i.e is set to NOTFOUNS
-
-</code></pre>
-<h3 id="conan">Conan</h3>
-<p><a href="https://bintray.com/conan/conan-center/ixwebsocket%3A_/_latestVersion"> <img alt="Download" src="https://api.bintray.com/packages/conan/conan-center/ixwebsocket%3A_/images/download.svg" /> </a></p>
-<p>Conan is currently supported through a recipe in <a href="https://github.com/conan-io/conan-center-index/tree/master/recipes/ixwebsocket">Conan Center</a> (<a href="https://bintray.com/conan/conan-center/ixwebsocket%3A_">Bintray entry</a>).</p>
-<p>Package reference</p>
-<ul>
-<li>Conan 1.21.0 and up: <code>ixwebsocket/7.9.2</code></li>
-<li>Earlier versions: <code>ixwebsocket/7.9.2@_/_</code></li>
-</ul>
-<p>Note that the version listed here might not be the latest one. See Bintray or the recipe itself for the latest version. If you're migrating from the previous, custom Bintray remote, note that the package reference <em>has</em> to be lower-case.</p>
-<h3 id="docker">Docker</h3>
-<p>There is a Dockerfile for running the unittest on Linux, and to run the <code>ws</code> tool. It is also available on the docker registry.</p>
-<pre><code>docker run docker.pkg.github.com/machinezone/ixwebsocket/ws:latest --help
-</code></pre>
-<p>To use docker-compose you must make a docker container first.</p>
-<pre><code>$ make docker
-...
-$ docker compose up &amp;
-...
-$ docker exec -it ixwebsocket_ws_1 bash
-app@ca2340eb9106:~$ ws --help
-ws is a websocket tool
-...
+<p>By using the echo_client ws sub-command, with the -m (mute or no_send), we will display statistics on how many messages we can receive per second.</p>
+<pre><code>$ ws echo_client -m ws://localhost:8008
+[2020-08-02 12:31:17.284] [info] ws_echo_client: connected
+[2020-08-02 12:31:17.284] [info] Uri: /
+[2020-08-02 12:31:17.284] [info] Headers:
+[2020-08-02 12:31:17.284] [info] Connection: Upgrade
+[2020-08-02 12:31:17.284] [info] Sec-WebSocket-Accept: byy/pMK2d0PtRwExaaiOnXJTQHo=
+[2020-08-02 12:31:17.284] [info] Server: ixwebsocket/10.1.4 macos ssl/SecureTransport zlib 1.2.11
+[2020-08-02 12:31:17.284] [info] Upgrade: websocket
+[2020-08-02 12:31:17.663] [info] messages received: 0 per second 2595307 total
+[2020-08-02 12:31:18.668] [info] messages received: 79679 per second 2674986 total
+[2020-08-02 12:31:19.668] [info] messages received: 207438 per second 2882424 total
+[2020-08-02 12:31:20.673] [info] messages received: 209207 per second 3091631 total
+[2020-08-02 12:31:21.676] [info] messages received: 216056 per second 3307687 total
+[2020-08-02 12:31:22.680] [info] messages received: 214927 per second 3522614 total
+[2020-08-02 12:31:23.684] [info] messages received: 216960 per second 3739574 total
+[2020-08-02 12:31:24.688] [info] messages received: 215232 per second 3954806 total
+[2020-08-02 12:31:25.691] [info] messages received: 212300 per second 4167106 total
+[2020-08-02 12:31:26.694] [info] messages received: 212501 per second 4379607 total
+[2020-08-02 12:31:27.699] [info] messages received: 212330 per second 4591937 total
+[2020-08-02 12:31:28.702] [info] messages received: 216511 per second 4808448 total
 </code></pre></div>
             </div>
         </div>
@@ -178,11 +138,11 @@ ws is a websocket tool
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
         <script>
-            var base_url = ".",
+            var base_url = "..",
                 shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
         </script>
-        <script src="js/base.js" defer></script>
-        <script src="search/main.js" defer></script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
